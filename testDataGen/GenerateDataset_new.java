@@ -203,7 +203,7 @@ public class GenerateDataset_new {
 	//g.generateDatasetForQuery("A1Q14", "true", "SELECT DISTINCT * FROM takes T WHERE (NOT EXISTS (SELECT id,course_id FROM takes S WHERE S.grade <> 'F' AND T.id=S.id AND T.course_id=S.course_id) and T.grade IS NOT NULL) or (T.grade <> 'F' AND T.grade IS NOT NULL)", "");
 		
 		//g.generateDatasetForQuery("A1Q20", "true", "SELECT c.dept_name, SUM(i.salary), MAX(i.salary) FROM course c INNER JOIN department d ON (c.dept_name = d.dept_name) INNER JOIN instructor i ON (d.dept_name = i.dept_name) GROUP BY c.dept_name HAVING SUM(i.salary)>100000 AND MAX(i.salary)<75000", "");
-		g.generateDatasetForQuery("A1Q21", "true", "SELECT c.dept_name, SUM(i.salary), MAX(i.salary) FROM course c INNER JOIN department d ON (c.dept_name = d.dept_name) INNER JOIN instructor i ON (d.dept_name = i.dept_name) ", "");
+	g.generateDatasetForQuery("A1Q21", "true", "SELECT c.dept_name, SUM(i.salary), MAX(i.salary) FROM course c INNER JOIN department d ON (c.dept_name = d.dept_name) INNER JOIN instructor i ON (d.dept_name = i.dept_name) ", "");
 	}
 
 }

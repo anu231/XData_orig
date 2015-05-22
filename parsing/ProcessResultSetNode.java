@@ -116,13 +116,16 @@ public class ProcessResultSetNode {
 			FromListElement temp = OperateOnBaseTable.OperateOnBaseTableJSQL(prev,false, "", qParser.root,qParser, false, false);
 			t.add(temp);
 		}
-		for (Iterator joinsIt = plainSelect.getJoins().iterator(); joinsIt.hasNext();) {
-			Join join = (Join) joinsIt.next();
-			FromItem rt = join.getRightItem();
-			FromListElement temp = OperateOnJoinJSQL.OperateOnJoinNode(join,rt,prev, "",JoinConditions, qParser.root, false, false,qParser);
-			t.add(temp);
-			prev = rt;
+		else {
+			for (Iterator joinsIt = plainSelect.getJoins().iterator(); joinsIt.hasNext();) {
+				Join join = (Join) joinsIt.next();
+				FromItem rt = join.getRightItem();
+				FromListElement temp = OperateOnJoinJSQL.OperateOnJoinNode(join,rt,prev, "",JoinConditions, qParser.root, false, false,qParser);
+				t.add(temp);
+				prev = rt;
+			}
 		}
+		
 		/*
 		for (int j = 0; j < fromTableList.size(); j++) {
 			if (fromTableList.get(j) instanceof FromBaseTable) {

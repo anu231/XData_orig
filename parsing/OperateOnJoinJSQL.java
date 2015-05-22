@@ -227,7 +227,7 @@ public class OperateOnJoinJSQL {
 				//jtn.setUsingClause(columnList);
 
 			}else{
-				List <String>l=getCommonColumnsForNaturalJoin(t,qParser);
+				List<String> l=getCommonColumnsForNaturalJoin(t,qParser);
 				//columnList=joinNode.getCommonColumnsForNaturalJoin(l);//FIXME ANURAG				
 			}
 
@@ -504,10 +504,10 @@ public class OperateOnJoinJSQL {
 
 		if(f1.tableName != null && f2.tableName!=null){
 
-			for(String columnName : qParser.getTableMap().getTable(f1.tableName).getColumns().keySet()){
+			for(String columnName : qParser.getTableMap().getTable(f1.tableName.toUpperCase()).getColumns().keySet()){
 				tableColumn1.add(columnName);            	
 			}			
-			for(String columnName : qParser.getTableMap().getTable(f2.tableName).getColumns().keySet()){
+			for(String columnName : qParser.getTableMap().getTable(f2.tableName.toUpperCase()).getColumns().keySet()){
 				tableColumn2.add(columnName);            	
 			}
 			tableColumn1.retainAll(tableColumn2);			
@@ -515,7 +515,7 @@ public class OperateOnJoinJSQL {
 		}else if(f1.tableName==null && f2.tableName!=null){
 
 			tableColumn1=Util.getAllColumnofElement(f1.getTabs(),qParser);
-			for(String columnName : qParser.getTableMap().getTable(f2.tableName).getColumns().keySet()){
+			for(String columnName : qParser.getTableMap().getTable(f2.tableName.toUpperCase()).getColumns().keySet()){
 				tableColumn2.add(columnName);            	
 			}
 			tableColumn1.retainAll(tableColumn2);			
@@ -523,7 +523,7 @@ public class OperateOnJoinJSQL {
 
 		}else if(f1.tableName!=null && f2.tableName==null){
 
-			for(String columnName : qParser.getTableMap().getTable(f1.tableName).getColumns().keySet()){
+			for(String columnName : qParser.getTableMap().getTable(f1.tableName.toUpperCase()).getColumns().keySet()){
 				tableColumn1.add(columnName);            	
 			}			
 			tableColumn2=Util.getAllColumnofElement(f2.getTabs(),qParser);			
@@ -537,6 +537,13 @@ public class OperateOnJoinJSQL {
 
 	}
 
+	public static List<net.sf.jsqlparser.schema.Column> getCommonColumnsForNaturalJoin(FromItem lt, FromItem rt, List<String> l){
+		List<net.sf.jsqlparser.schema.Column> columnList = new ArrayList<net.sf.jsqlparser.schema.Column>();
+		//FIXME
+		
+		return columnList;
+	}
+	
 	// returns all the Binary operator node from the query tree node
 	private static Vector<BinaryRelationalOperatorNode> operateOnJoinClause(
 			QueryTreeNode node) {

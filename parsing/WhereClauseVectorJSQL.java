@@ -314,12 +314,7 @@ public class WhereClauseVectorJSQL {
 				System.out.println("n = null");
 				//return null;
 			}
-			//FIXME by Anurag
-			/*******/
-			if (n==null){
-				n = new Node();
-			}
-			/*******/
+			
 			n.setType(Node.getColRefType());
 			if (columnReference.getTable().getWholeTableName() != null) {
 				n.setTableAlias(columnReference.getTable().getWholeTableName());

@@ -12,7 +12,7 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Volumes/Data/Work/IITB/XData_orig/jars/jsqlparser.jar"/>
-	<classpathentry kind="lib" path="/Volumes/Data/Work/IITB/XData_orig/jars/postgresql-9.4-1201.jdbc4.jar"/>
+	<classpathentry kind="lib" path="F:/Coding/Xdata_orig/jars/postgresql-9.4-1201.jdbc4.jar"/>
+	<classpathentry kind="lib" path="F:/Coding/Xdata_orig/jars/jsqlparser.jar"/>
 	<classpathentry kind="output" path=""/>
 </classpath>

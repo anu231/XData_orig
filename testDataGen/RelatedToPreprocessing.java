@@ -98,7 +98,8 @@ public class RelatedToPreprocessing {
 				if(result.next()){
 					byte[] dataBytes = result.getBytes("ddltext");
 					
-					String tempFile = "/tmp/dummy";
+					//String tempFile = "/tmp/dummy";
+					String tempFile = "F:\\temp\\temp2.txt";
 					
 					FileOutputStream fos = new FileOutputStream(tempFile);
 					fos.write(dataBytes);
@@ -490,6 +491,7 @@ public class RelatedToPreprocessing {
 		
 		BufferedWriter ord = new BufferedWriter(new FileWriter(Configuration.homeDir+"/temp_cvc"+g.getFilePath()+"/queries.txt"));
 		BufferedWriter ord1 = new BufferedWriter(new FileWriter(Configuration.homeDir+"/temp_cvc"+g.getFilePath()+"/queries_mutant.txt"));
+		
 		ord.write(query);
 		ord1.write(query);
 		ord.close();
