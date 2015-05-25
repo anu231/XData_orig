@@ -44,9 +44,11 @@ public class Util {
 
 		if(colName.toLowerCase().contains("year1")){
 			colName=colName.replaceAll("YEAR1", "YEAR");
+			colName=colName.replaceAll("year1", "YEAR");
 		}
 		if(tabName!=null && tabName.toLowerCase().contains("year1")){
 			tabName=tabName.replaceAll("YEAR1", "YEAR");
+			tabName=tabName.replaceAll("year1", "YEAR");
 		}
 
 		Column col = null;
@@ -60,10 +62,10 @@ public class Util {
 			// the column directly.
 			String fromTableName = f.getTableName();
 
-			if (qParser.getQuery().getFromTables().get(fromTableName) != null) {
+			if (qParser.getQuery().getFromTables().get(fromTableName.toUpperCase()) != null) {
 
-				Table t = qParser.getQuery().getFromTables().get(fromTableName);				
-				col = t.getColumn(columnName);
+				Table t = qParser.getQuery().getFromTables().get(fromTableName.toUpperCase());				
+				col = t.getColumn(columnName.toUpperCase());
 				if(col==null){					
 					return null;
 				}
@@ -123,9 +125,9 @@ public class Util {
 				}
 			}
 			String fromTableName = f.getTableName();
-			if (qParser.getQuery().getFromTables().get(fromTableName) != null) {
-				Table t = qParser.getQuery().getFromTables().get(fromTableName);
-				col = t.getColumn(columnName);
+			if (qParser.getQuery().getFromTables().get(fromTableName.toUpperCase()) != null) {
+				Table t = qParser.getQuery().getFromTables().get(fromTableName.toUpperCase());
+				col = t.getColumn(columnName.toUpperCase());
 				if (col == null)
 					return null;
 
@@ -212,9 +214,9 @@ public class Util {
 			// the column directly.
 			String fromTableName = f.getTableName();
 
-			if (qParser.getQuery().getFromTables().get(fromTableName) != null) {
+			if (qParser.getQuery().getFromTables().get(fromTableName.toUpperCase()) != null) {
 
-				Table t = qParser.getQuery().getFromTables().get(fromTableName);				
+				Table t = qParser.getQuery().getFromTables().get(fromTableName.toUpperCase());				
 				col = t.getColumn(columnName);
 				if(col==null){					
 					return nList;
@@ -583,7 +585,7 @@ public class Util {
 		if (node instanceof net.sf.jsqlparser.schema.Table) {
 			net.sf.jsqlparser.schema.Table fbTable = (net.sf.jsqlparser.schema.Table) node;// typecasting the node
 			// to FromBaseTable
-			String tableName = fbTable.getWholeTableName();// extracting the base
+			String tableName = fbTable.getWholeTableName().toUpperCase();// extracting the base
 			// table
 			if (qParser.getTableMap().getTable(tableName).getColumn(columnName) != null)// if
 				// the

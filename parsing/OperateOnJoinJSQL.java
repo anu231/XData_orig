@@ -173,6 +173,7 @@ public class OperateOnJoinJSQL {
 
 			//ResultColumnList columnList=null;
 			List<net.sf.jsqlparser.schema.Column> columnList = null;
+			List<String> li = null;
 			//FIXME: mahesh...what if aliased name and original name are same ??Then that join condition is stored in both lists (join columns and left/rightSet)
 
 			/*
@@ -183,61 +184,70 @@ public class OperateOnJoinJSQL {
 
 			if (rt instanceof SubSelect && lt instanceof SubSelect ){//If sub query then we should add only the projected columns
 
-				List <String> l = getCommonColumnsForNaturalJoin(qParser.getFromClauseSubqueries().get(qParser.getFromClauseSubqueries().size()-1).getProjectedCols(),qParser.getFromClauseSubqueries().get(qParser.getFromClauseSubqueries().size()-2).getProjectedCols());
+				li = getCommonColumnsForNaturalJoin(qParser.getFromClauseSubqueries().get(qParser.getFromClauseSubqueries().size()-1).getProjectedCols(),qParser.getFromClauseSubqueries().get(qParser.getFromClauseSubqueries().size()-2).getProjectedCols());
 				//l = getJoinCondsWithColumnAliases(l, joinNode, jtn, jtan);//Get join conditions with aliased names
 				//get left and right aliased set
-				set = Util.getAliasedNodes(leftFle, l,qParser);
+				set = Util.getAliasedNodes(leftFle, li,qParser);
 				if(set != null)
 					leftSet = set;
-				set = Util.getAliasedNodes(rightFle, l,qParser);
+				set = Util.getAliasedNodes(rightFle, li,qParser);
 				if(set != null)
 					rightSet = set;
 				//columnList=joinNode.getUsingColumns(l);//FIXME
-				columnList=joinNode.getUsingColumns();//FIXME
+				
 			}
 			else if (rt instanceof SubSelect ) {//If sub query then we should add only the projected columns
 
-				List <String> l = getCommonColumnsForNaturalJoin(t.get(0), qParser.getFromClauseSubqueries().get(qParser.getFromClauseSubqueries().size()-1).getProjectedCols(),qParser); 
+				li = getCommonColumnsForNaturalJoin(t.get(0), qParser.getFromClauseSubqueries().get(qParser.getFromClauseSubqueries().size()-1).getProjectedCols(),qParser); 
 				//l = getJoinCondsWithColumnAliases(l, joinNode, jtn, jtan);//Get join conditions with aliased names
 				//get left and right aliased set
-				set = Util.getAliasedNodes(leftFle, l,qParser);
+				set = Util.getAliasedNodes(leftFle, li,qParser);
 				if(set != null)
 					leftSet = set;
-				set = Util.getAliasedNodes(rightFle, l,qParser);
+				set = Util.getAliasedNodes(rightFle, li,qParser);
 				if(set != null)
 					rightSet = set;
-				columnList=joinNode.getUsingColumns();
+				//columnList=joinNode.getUsingColumns();
 			}
 			else if( lt instanceof SubSelect ){
 
-				List <String> l = getCommonColumnsForNaturalJoin(t.get(1), qParser.getFromClauseSubqueries().get(qParser.getFromClauseSubqueries().size()-1).getProjectedCols(),qParser); 
+				li = getCommonColumnsForNaturalJoin(t.get(1), qParser.getFromClauseSubqueries().get(qParser.getFromClauseSubqueries().size()-1).getProjectedCols(),qParser); 
 				//l = getJoinCondsWithColumnAliases(l, joinNode, jtn, jtan);//Get join conditions with aliased names
 				//get left aliased set
-				set = Util.getAliasedNodes(leftFle, l,qParser);
+				set = Util.getAliasedNodes(leftFle, li,qParser);
 				if(set != null)
 					leftSet = set;
-				set = Util.getAliasedNodes(rightFle, l,qParser);
+				set = Util.getAliasedNodes(rightFle, li,qParser);
 				if(set != null)
 					rightSet = set;
-				columnList=joinNode.getUsingColumns();
+				//columnList=joinNode.getUsingColumns();
 			}
 			else if(joinNode.getUsingColumns() != null){
-				columnList = joinNode.getUsingColumns();
+				columnList = new ArrayList<net.sf.jsqlparser.schema.Column>(joinNode.getUsingColumns());
 				//FIXME ANURAG
 				//jtn.setUsingClause(columnList);
 
 			}else{
-				List <String>l=getCommonColumnsForNaturalJoin(t,qParser);
+				li=getCommonColumnsForNaturalJoin(t,qParser);
 				//columnList=joinNode.getCommonColumnsForNaturalJoin(l);//FIXME ANURAG				
 			}
-
+			
+			if (columnList==null){
+				//populate column list
+				columnList = new ArrayList<net.sf.jsqlparser.schema.Column>();
+				for (int j=0; j<li.size(); j++){
+					net.sf.jsqlparser.schema.Table tempTab = new net.sf.jsqlparser.schema.Table("null","null"); 
+					columnList.add(new net.sf.jsqlparser.schema.Column(tempTab,li.get(j)));
+				}
+			}
+			
 			Node joinCond = null;
 
 			for (int i = 0; i < columnList.size(); i++) {
 
 				net.sf.jsqlparser.schema.Column column = columnList.get(i);
-				joinColumns1 = Util.getJoinColumnsJSQL(column.getColumnName(), lt,qParser);
-				joinColumns2 = Util.getJoinColumnsJSQL(column.getColumnName(), rt,qParser);
+				joinColumns1 = Util.getJoinColumnsJSQL(column.getColumnName().toUpperCase(), lt,qParser);
+				joinColumns2 = Util.getJoinColumnsJSQL(column.getColumnName().toUpperCase(), rt,qParser);
 				/*
 				 * Here Cross join is needed. This is because a using clause
 				 * does not really specify what tables it is joining. We may
@@ -504,10 +514,10 @@ public class OperateOnJoinJSQL {
 
 		if(f1.tableName != null && f2.tableName!=null){
 
-			for(String columnName : qParser.getTableMap().getTable(f1.tableName).getColumns().keySet()){
+			for(String columnName : qParser.getTableMap().getTable(f1.tableName.toUpperCase()).getColumns().keySet()){
 				tableColumn1.add(columnName);            	
 			}			
-			for(String columnName : qParser.getTableMap().getTable(f2.tableName).getColumns().keySet()){
+			for(String columnName : qParser.getTableMap().getTable(f2.tableName.toUpperCase()).getColumns().keySet()){
 				tableColumn2.add(columnName);            	
 			}
 			tableColumn1.retainAll(tableColumn2);			
@@ -515,7 +525,7 @@ public class OperateOnJoinJSQL {
 		}else if(f1.tableName==null && f2.tableName!=null){
 
 			tableColumn1=Util.getAllColumnofElement(f1.getTabs(),qParser);
-			for(String columnName : qParser.getTableMap().getTable(f2.tableName).getColumns().keySet()){
+			for(String columnName : qParser.getTableMap().getTable(f2.tableName.toUpperCase()).getColumns().keySet()){
 				tableColumn2.add(columnName);            	
 			}
 			tableColumn1.retainAll(tableColumn2);			
@@ -523,7 +533,7 @@ public class OperateOnJoinJSQL {
 
 		}else if(f1.tableName!=null && f2.tableName==null){
 
-			for(String columnName : qParser.getTableMap().getTable(f1.tableName).getColumns().keySet()){
+			for(String columnName : qParser.getTableMap().getTable(f1.tableName.toUpperCase()).getColumns().keySet()){
 				tableColumn1.add(columnName);            	
 			}			
 			tableColumn2=Util.getAllColumnofElement(f2.getTabs(),qParser);			

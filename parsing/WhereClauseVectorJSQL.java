@@ -279,7 +279,17 @@ public class WhereClauseVectorJSQL {
 			n.setRight(null);
 			return n;
 
-		} else if (clause instanceof StringValue) {
+		} else if (clause instanceof LongValue){
+			Node n = new Node();
+			n.setType(Node.getValType());
+			String s=((((LongValue)clause).getValue()))+"";
+			s=util.Utilities.covertDecimalToFraction(s);
+			n.setStrConst(s);
+			n.setLeft(null);
+			n.setRight(null);
+			return n;
+		}
+		else if (clause instanceof StringValue) {
 			Node n = new Node();
 			n.setType(Node.getValType());
 			n.setStrConst(((StringValue) clause).getValue());
@@ -314,12 +324,7 @@ public class WhereClauseVectorJSQL {
 				System.out.println("n = null");
 				//return null;
 			}
-			//FIXME by Anurag
-			/*******/
-			if (n==null){
-				n = new Node();
-			}
-			/*******/
+			
 			n.setType(Node.getColRefType());
 			if (columnReference.getTable().getWholeTableName() != null) {
 				n.setTableAlias(columnReference.getTable().getWholeTableName());
@@ -565,7 +570,10 @@ public class WhereClauseVectorJSQL {
 			if(queryType == 1) n.setQueryIndex(qParser.getFromClauseSubqueries().size()-1);
 			if(queryType == 2) n.setQueryIndex(qParser.getWhereClauseSubqueries().size()-1);
 			return n;
-		} else if (clause instanceof SubSelect) {
+		} else if (clause instanceof InExpression){ 
+			
+		}
+		else if (clause instanceof SubSelect) {
 			/*
 			 * System.out.println("Found Subquery"); int currentCounterVal =
 			 * subQueryCounter;
@@ -574,8 +582,9 @@ public class WhereClauseVectorJSQL {
 			 * currentCounterVal = (currentCounterVal*10) + 1; subQueryCounter =
 			 * currentCounterVal; }
 			 */
-			/*Start of Comment on 13th May  FIXME
+			/*Start of Comment on 13th May  FIXME*/
 			SubSelect sqn = (SubSelect) clause;
+			/*
 			if (sqn.getSubqueryType() == 1 || sqn.getSubqueryType() == 2) { // IN
 				// SubQuery
 				// Type

@@ -569,8 +569,8 @@ public class QueryParser {
 	}
 
 	public void parseQuery(String queryId, String queryString) throws Exception {
-		//parseQuery(queryId, queryString, true);
-		parseQueryJSQL(queryId, queryString, true);
+		parseQuery(queryId, queryString, true);
+		//parseQueryJSQL(queryId, queryString, true);
 	}
 
 	public void parseQueryJSQL(String queryId, String queryString, boolean debug)
