@@ -1,0 +1,15 @@
+/AggMutationsInOuterQueryBlock.class
+/ConstrainedAggregationMutationsInOuterQueryBlock.class
+/DistinctMutationsInOuterQueryBlock.class
+/EquivalenceMutationInOuterQueryBlock.class
+/ExtraGroupByMutationsInOuterQueryBlock.class
+/JoinMutationsInOuterQueryBlock.class
+/LikeMutationsInOuterQueryBlock.class
+/NullMutationsInOuterBlock.class
+/PartialGroupByMutationsInOuterQueryBlock_case1.class
+/PartialGroupByMutationsInOuterQueryBlock_case2.class
+/PatternMutationOuterQueryBlock.class
+/SelectionMutationsInOuterQueryBlock.class
+/StringSelectionMutationsInOuterQueryBlock.class
+/UnintendedJoinsMutationsInOuterQueryBlock.class
+/WhereClauseSubQueryConnectiveMutations.class

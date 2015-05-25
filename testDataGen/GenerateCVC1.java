@@ -907,8 +907,8 @@ public class GenerateCVC1 {
 					if(result.next()){
 						byte[] dataBytes = result.getBytes("ddltext");
 						
-						String tempFile = "/tmp/dummy";
-						
+						//String tempFile = "/tmp/dummy";
+						String tempFile = "F:\\temp\\tempdata.txt";
 						FileOutputStream fos = new FileOutputStream(tempFile);
 						fos.write(dataBytes);
 						fos.close();

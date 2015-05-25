@@ -1,0 +1,14 @@
+/AggMutationsInWhereSubQuery.class
+/ConstrainedAggregationMutationsInWhereSubQuery.class
+/DistinctMutationsInWhereSubQuery.class
+/EquivalenceMutationInWhereSubQuery.class
+/ExtraGroupByMutationsInWhereSubQuery.class
+/JoinMutationsInWhereSubQuery.class
+/LikeMutationsInWhereSubquery.class
+/MutationsInNotExistsSubquery.class
+/PartialGroupByMutationsInWhereSubQuery_case1.class
+/PartialGroupByMutationsInWhereSubQuery_case2.class
+/PatternMutationsInWhereSubquery.class
+/SelectionMutationsInWhereSubquery.class
+/StringSelectionMutationsInWhereSubquery.class
+/UnintendedJoinsMutationsInWhereSubQuery.class
