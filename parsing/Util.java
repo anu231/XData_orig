@@ -347,7 +347,7 @@ public class Util {
 		Vector<Node> projectedCols = new Vector<Node>();
 		for (int i = 0; i < q.getTabs().size(); i++) {
 			if (q.getTabs().get(i).getTableName() != null) {
-				Table t = qParser.getTableMap().getTable(q.getTabs().get(i).getTableName());
+				Table t = qParser.getTableMap().getTable(q.getTabs().get(i).getTableName().toUpperCase());
 				Iterator itr = t.getColumns().values().iterator();
 				//mahesh
 				Vector<Node> tempProjectedCols = new Vector<Node>();
@@ -754,7 +754,7 @@ public class Util {
 		for(int i=0;i<t.size();i++){
 			FromListElement f=(FromListElement)t.get(i);
 			if(f.getTableName()!=null){
-				for(String columnName : qParser.getTableMap().getTable(f.getTableName()).getColumns().keySet()){
+				for(String columnName : qParser.getTableMap().getTable(f.getTableName().toUpperCase()).getColumns().keySet()){
 					if(!allColumn.contains(columnName))
 						allColumn.add(columnName);            	
 				}

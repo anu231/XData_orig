@@ -255,15 +255,15 @@ public class OperateOnSubQueryJSQL {
 				//only one item
 				FromListElement temp = OperateOnBaseTable.OperateOnBaseTableJSQL(prev,false, aliasName, jtn, qParser, fromSubquery, whereSubquery);
 				t.add(temp);
+			} else {
+				for (Iterator joinsIt = plainSelect.getJoins().iterator(); joinsIt.hasNext();) {
+					Join join = (Join) joinsIt.next();
+					FromItem rt = join.getRightItem();
+					FromListElement temp = OperateOnJoinJSQL.OperateOnJoinNode(join,rt,prev, aliasName,(fromSubquery)?fromClause.allConds:whereClause.allConds, jtn, fromSubquery, whereSubquery,qParser);
+					t.add(temp);
+					prev = rt;
+				}
 			}
-			for (Iterator joinsIt = plainSelect.getJoins().iterator(); joinsIt.hasNext();) {
-				Join join = (Join) joinsIt.next();
-				FromItem rt = join.getRightItem();
-				FromListElement temp = OperateOnJoinJSQL.OperateOnJoinNode(join,rt,prev, aliasName,(fromSubquery)?fromClause.allConds:whereClause.allConds, jtn, fromSubquery, whereSubquery,qParser);
-				t.add(temp);
-				prev = rt;
-			}
-			
 			//	if(!fromSubquery)
 			sqa.setTabs(t);
 			//	else if(fromSubquery)

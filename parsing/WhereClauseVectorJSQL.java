@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.derby.impl.sql.compile.BinaryRelationalOperatorNode;
+
 import parsing.AggregateFunction;
 import parsing.FromListElement;
 import parsing.JoinTreeNode;
@@ -248,27 +250,6 @@ public class WhereClauseVectorJSQL {
 			return agg;
 
 		} else if (clause instanceof DoubleValue) {
-			/*if (((DoubleValue) clause).getValue() instanceof SQLInteger) {
-				Node n = new Node();
-				n.setType(Node.getValType());
-				n
-				.setStrConst(new Integer(
-						((SQLInteger) ((NumericConstantNode) clause)
-								.getValue()).getInt()).toString());
-				n.setLeft(null);
-				n.setRight(null);
-				return n;
-			} else if (((NumericConstantNode) clause).getValue() instanceof BigIntegerDecimal) {
-				Node n = new Node();
-				n.setType(Node.getValType());
-				String s=((((NumericConstantNode)clause).getValue()).getDouble())+"";
-				//String str=(BigIntegerDecimal)((((NumericConstantNode) clause).getValue()).getDouble()).toString();
-				s=util.Utilities.covertDecimalToFraction(s);
-				n.setStrConst(s);
-				n.setLeft(null);
-				n.setRight(null);
-				return n;
-			}*/
 			Node n = new Node();
 			n.setType(Node.getValType());
 			String s=((((DoubleValue)clause).getValue()))+"";
@@ -547,17 +528,28 @@ public class WhereClauseVectorJSQL {
 		 * have a list of concrete values within parenthesis }
 		 */
 		else if (clause instanceof NotEqualsTo) {
-			/*NotNode nn = ((NotNode) clause);
+			NotEqualsTo broNode = (NotEqualsTo)clause;
+			
+			//BinaryRelationalOperatorNode broNode = ((BinaryRelationalOperatorNode) clause);			
 			Node n = new Node();
-			n.setType(Node.getNotNodeType());
-			n.setLeft(getWhereClauseVector(nn.getOperand(), exposedName,fle,isWhereClause, queryType,qParser));
-			n.setRight(null);
+			n.setType(Node.getBroNodeType());
+			n.setOperator(qParser.cvcRelationalOperators[2]);
+			n.setLeft(getWhereClauseVector(broNode.getLeftExpression(), exposedName, fle, isWhereClause, queryType,qParser));
+			n.setRight(getWhereClauseVector(broNode.getRightExpression(), exposedName, fle, isWhereClause, queryType,qParser));
+
 			//Storing sub query details
 			n.setQueryType(queryType);
 			if(queryType == 1) n.setQueryIndex(qParser.getFromClauseSubqueries().size()-1);
 			if(queryType == 2) n.setQueryIndex(qParser.getWhereClauseSubqueries().size()-1);
-			return n;*/
-			throw new Exception("getWhereClauseVector needs more programming \n"+clause.getClass()+"\n"+clause.toString());
+
+			/*
+			//FIXME: Mahesh when original subquery calls this then it is added to havingClause of sub query 
+			if(n.getRight().getQueryType() != 0 || n.getLeft().getQueryType() != 0){//Aliased column name is used in outer query
+				addToSubQuery(n);
+				n = null;
+			}*/
+			return n;
+			//throw new Exception("getWhereClauseVector needs more programming \n"+clause.getClass()+"\n"+clause.toString());
 		} else if (clause instanceof IsNullExpression) {
 			IsNullExpression isNullNode = (IsNullExpression) clause;
 			Node n = new Node();
@@ -571,6 +563,146 @@ public class WhereClauseVectorJSQL {
 			if(queryType == 2) n.setQueryIndex(qParser.getWhereClauseSubqueries().size()-1);
 			return n;
 		} else if (clause instanceof InExpression){ 
+			//handles NOT and NOT IN both
+			InExpression sqn = (InExpression)clause;
+			
+			Node lhs = getWhereClauseVector(sqn.getLeftExpression(),exposedName, fle,isWhereClause, queryType,qParser);
+			Vector<Node> thisSubQConds = new Vector<Node>();
+			//FromSubquery subq = new FromSubquery();
+			//subq.setSubquery(sqn.getResultSet());
+			//FromListElement fle1 = OperateOnSubquery(subq, thisSubQConds,new JoinTreeNode());
+			//FIXME: mahesh changed this.But not sure
+			if (sqn.getItemsList() instanceof SubSelect){
+				OperateOnSubQueryJSQL.OperateOnSubquery((SubSelect)sqn.getItemsList(), thisSubQConds,new JoinTreeNode(),false,isWhereClause,qParser);
+			}
+			
+			FromListElement fle1 =qParser.getWhereClauseSubqueries().get(qParser.getWhereClauseSubqueries().size()-1).getQueryAliases();
+
+
+
+			//System.out.println("SUB QUERY FOUND "+sqn);
+
+			// Extract the projected column and create a colref node
+			SubSelect subS = (SubSelect)sqn.getItemsList();
+			List<SelectItem> rcList = ((PlainSelect)subS.getSelectBody()).getSelectItems();
+			
+			//ResultColumnList rcl = subq.getSubquery().getResultColumns();
+			SelectExpressionItem rc = (SelectExpressionItem)rcList.get(0);
+			Column cr ;
+			String aggName="" ;
+			Function an = new Function();
+			
+			//mahesh chane
+			//ValueNode exp = rc.getExpression();
+			Expression exp = rc.getExpression();
+			if( exp instanceof Function ){
+				an = (Function)exp;
+				aggName = an.getName();
+				ExpressionList expL = an.getParameters();
+				cr = (net.sf.jsqlparser.schema.Column)expL.getExpressions().get(0);
+			}
+			else {
+				cr = (net.sf.jsqlparser.schema.Column) exp;
+			}
+				
+			Node rhs;
+			//rhs= getWhereClauseVector(exp, fle,isWhereClause);
+
+
+			rhs = Util.getColumnFromOccurenceInJC(cr.getColumnName(), cr.getTable().getWholeTableName(), fle1, qParser);
+			if (rhs == null) {
+				rhs = Util.getColumnFromOccurenceInJC(cr.getColumnName(), cr.getTable().getWholeTableName(), qParser.getQueryAliases(),qParser);
+			}
+			rhs.setType(Node.getColRefType());
+			if (cr.getTable().getWholeTableName() != null) {
+				rhs.setTableAlias(cr.getTable().getWholeTableName());
+			} else {
+				rhs.setTableAlias("");
+			}
+
+			if( exp instanceof Function ){
+				AggregateFunction af = new AggregateFunction();
+				af.setAggExp(rhs);
+				af.setFunc(aggName);
+				af.setDistinct(an.isDistinct());
+				Node rhs1= new Node();
+				rhs1.setAgg(af);
+				rhs1.setType(Node.getAggrNodeType());
+				rhs1.setTableAlias(rhs.getTableAlias());
+				rhs1.setColumn(rhs.getColumn());
+				rhs1.setTableNameNo(rhs.getTableNameNo());
+				rhs1.setTable(rhs.getTable());
+
+				System.out.println("Hello");
+				rhs=rhs1;
+			}
+
+			rhs.setQueryType(2);
+			rhs.setQueryIndex(qParser.getWhereClauseSubqueries().size()-1);
+			Node cond = new Node();
+			cond.setType(Node.getBroNodeType());
+			cond.setLeft(lhs);
+			cond.setRight(rhs);
+			cond.setOperator("=");
+			cond.setAgg(rhs.getAgg());
+			// create the final subquery node and return it
+			Node sqNode = new Node();
+			sqNode.setType(Node.getInNodeType());
+			sqNode.setSubQueryConds(thisSubQConds);
+			sqNode.setLhsRhs(cond);
+			return sqNode;
+			
+		} else if (clause instanceof ExistsExpression){
+			ExistsExpression sqn = (ExistsExpression)clause;
+			
+			Node lhs = getWhereClauseVector(sqn.getRightExpression(),exposedName, fle,isWhereClause, queryType,qParser);
+			Vector<Node> thisSubQConds = new Vector<Node>();
+			
+			//FromSubquery subq = new FromSubquery();
+			//subq.setSubquery(sqn.getResultSet());
+			//FromListElement fle1 = OperateOnSubquery(subq, thisSubQConds,new JoinTreeNode(),this.FromClauseSubqueries, !isWhereClause);
+			//FIXME: mahesh changed this.But not sure
+			SubSelect subS = (SubSelect)sqn.getRightExpression();
+			OperateOnSubQueryJSQL.OperateOnSubquery(subS, thisSubQConds,new JoinTreeNode(),false,isWhereClause,qParser);
+			FromListElement fle1 =qParser.getWhereClauseSubqueries().get(qParser.getWhereClauseSubqueries().size()-1).getQueryAliases();
+
+
+			// Extract the projected column and create a colref node
+			// ResultColumnList rcl = subq.getSubquery().getResultColumns();
+			// ResultColumn rc = (ResultColumn)rcl.getNodeVector().get(0);
+			// ColumnReference cr = (ColumnReference)rc.getExpression();
+			// Column c = getColumnFromOccurenceInJC(cr.getColumnName(),
+			// cr.getTableName(), fle1);
+			// if(c==null){
+			// c = getColumnFromOccurenceInJC(cr.getColumnName(),
+			// cr.getTableName(), queryAliases);
+			// }
+			// Node rhs = new Node();
+			// rhs.setType(Node.getColRefType());
+			// rhs.setColumn(c);
+			// //create the condition node as X = Y for X in (select Y from
+			// ...)
+			// Node cond = new Node();
+			// cond.setType(Node.getBroNodeType());
+			// cond.setLeft(lhs);
+			// cond.setRight(rhs);
+			// cond.setOperator("=");
+			// create the final subquery node and return it
+			Node sqNode = new Node();
+
+
+			sqNode.setType(Node.getExistsNodeType());
+			sqNode.setSubQueryConds(thisSubQConds);
+
+
+			Node rhs = new Node();
+			rhs.setQueryType(2);
+			rhs.setQueryIndex(qParser.getWhereClauseSubqueries().size()-1);
+
+			sqNode.setLhsRhs(rhs);
+
+			// sqNode.setLhsRhs(cond);
+			return sqNode;
 			
 		}
 		else if (clause instanceof SubSelect) {
@@ -845,7 +977,8 @@ public class WhereClauseVectorJSQL {
 			
 			return n;
 			*/
-			throw new Exception("getWhereClauseVector needs more programming \n"+clause.getClass()+"\n"+clause.toString());
+			//throw new Exception("getWhereClauseVector needs more programming \n"+clause.getClass()+"\n"+clause.toString());
+			System.out.println("getWhereClauseVector needs more programming \n"+clause.getClass()+"\n"+clause.toString());
 		}
 		else if(clause instanceof Between){
 			
@@ -897,6 +1030,28 @@ public class WhereClauseVectorJSQL {
 			}*/
 			
 			return n;
+		} else if (clause instanceof GreaterThan){
+			GreaterThan broNode = (GreaterThan)clause;
+			
+			//BinaryRelationalOperatorNode broNode = ((BinaryRelationalOperatorNode) clause);			
+			Node n = new Node();
+			n.setType(Node.getBroNodeType());
+			n.setOperator(qParser.cvcRelationalOperators[3]);
+			n.setLeft(getWhereClauseVector(broNode.getLeftExpression(), exposedName, fle, isWhereClause, queryType,qParser));
+			n.setRight(getWhereClauseVector(broNode.getRightExpression(), exposedName, fle, isWhereClause, queryType,qParser));
+
+			//Storing sub query details
+			n.setQueryType(queryType);
+			if(queryType == 1) n.setQueryIndex(qParser.getFromClauseSubqueries().size()-1);
+			if(queryType == 2) n.setQueryIndex(qParser.getWhereClauseSubqueries().size()-1);
+
+			/*
+			//FIXME: Mahesh when original subquery calls this then it is added to havingClause of sub query 
+			if(n.getRight().getQueryType() != 0 || n.getLeft().getQueryType() != 0){//Aliased column name is used in outer query
+				addToSubQuery(n);
+				n = null;
+			}*/
+			return n;
 		}
 		else {
 			throw new Exception("getWhereClauseVector needs more programming \n"+clause.getClass()+"\n"+clause.toString());
@@ -904,4 +1059,5 @@ public class WhereClauseVectorJSQL {
 		}
 		return null;
 	}
+	
 }
