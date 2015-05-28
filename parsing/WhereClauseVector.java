@@ -657,6 +657,7 @@ public class WhereClauseVector {
 				Vector<Node> thisSubQConds = new Vector<Node>();
 				FromSubquery subq = new FromSubquery();
 				subq.setSubquery(sqn.getResultSet());
+				System.out.println(subq.toString());
 				//FromListElement fle1 = OperateOnSubquery(subq, thisSubQConds,new JoinTreeNode(),this.FromClauseSubqueries, !isWhereClause);
 				//FIXME: mahesh changed this.But not sure
 				OperateOnSubQuery.OperateOnSubquery(subq, thisSubQConds,new JoinTreeNode(),false,isWhereClause,qParser);

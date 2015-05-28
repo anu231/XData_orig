@@ -4,7 +4,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.derby.impl.sql.compile.AggregateNode;
 import org.apache.derby.impl.sql.compile.BinaryRelationalOperatorNode;
+import org.apache.derby.impl.sql.compile.ColumnReference;
+import org.apache.derby.impl.sql.compile.FromSubquery;
+import org.apache.derby.impl.sql.compile.QueryTreeNode;
+import org.apache.derby.impl.sql.compile.ResultColumn;
+import org.apache.derby.impl.sql.compile.ResultColumnList;
 
 import parsing.AggregateFunction;
 import parsing.FromListElement;
@@ -655,7 +661,7 @@ public class WhereClauseVectorJSQL {
 		} else if (clause instanceof ExistsExpression){
 			ExistsExpression sqn = (ExistsExpression)clause;
 			
-			Node lhs = getWhereClauseVector(sqn.getRightExpression(),exposedName, fle,isWhereClause, queryType,qParser);
+			Node lhs = null;// getWhereClauseVector(sqn.getRightExpression(),exposedName, fle,isWhereClause, queryType,qParser);
 			Vector<Node> thisSubQConds = new Vector<Node>();
 			
 			//FromSubquery subq = new FromSubquery();
@@ -716,6 +722,65 @@ public class WhereClauseVectorJSQL {
 			 */
 			/*Start of Comment on 13th May  FIXME*/
 			SubSelect sqn = (SubSelect) clause;
+			
+			//added by bikash
+			//Node lhs = getWhereClauseVector(sqn.getLeftOperand(), fle);
+			Vector<Node> thisSubQConds = new Vector<Node>();
+			//FromSubquery subq = new FromSubquery();
+			//subq.setSubquery(sqn.getResultSet());
+
+			//FromListElement fle1 = OperateOnSubquery(subq, thisSubQConds,new JoinTreeNode(),this.FromClauseSubqueries, !isWhereClause);
+
+			//FIXME: mahesh changed this.But not sure
+			OperateOnSubQueryJSQL.OperateOnSubquery(sqn, thisSubQConds,new JoinTreeNode(),false,isWhereClause,qParser);
+			FromListElement fle1 =qParser.getWhereClauseSubqueries().get(qParser.getWhereClauseSubqueries().size()-1).getQueryAliases();
+
+			//PlainSelect ps = sqn.getSelectBody();
+			List<SelectItem> rcList = ((PlainSelect)sqn.getSelectBody()).getSelectItems();
+			SelectExpressionItem rc = (SelectExpressionItem)rcList.get(0);
+			//ResultColumn rc = (ResultColumn) rcl.getNodeVector().get(0);
+			if(rc.getExpression() instanceof Function){
+				//sqn.getResultSet();
+				//Node rhs=getWhereClauseVector((AggregateNode)rc.getExpression(),fle1);
+
+				Function an = (Function)rc.getExpression();
+				String aggName = an.getName();
+				ExpressionList expL = an.getParameters();
+				//net.sf.jsqlparser.schema.Column cr = (net.sf.jsqlparser.schema.Column)expL.getExpressions().get(0);
+				AggregateFunction af = new AggregateFunction();
+				//QueryTreeNode qtn = (QueryTreeNode)an.getOperand();
+				Node n = getWhereClauseVector(expL.getExpressions().get(0), exposedName,fle1,isWhereClause, 2, qParser);
+				af.setAggExp(n);
+				af.setFunc(aggName);
+				af.setDistinct(an.isDistinct());
+
+
+				Node rhs = new Node();
+				rhs.setAgg(af);
+				rhs.setType(Node.getAggrNodeType());
+
+				rhs.setQueryType(2);
+				rhs.setQueryIndex(qParser.getWhereClauseSubqueries().size()-1);
+
+				//Node cond = new Node();
+				//cond.setType(Node.getBroNodeSubQType());
+				//cond.setLeft(lhs);
+				//cond.setRight(rhs);
+				//String operator = sqn.subQType(sqn.getSubqueryType());
+				//cond.setOperator(operator);
+				// create the final subquery node and return it
+				Node sqNode = new Node();
+				sqNode.setType(Node.getBroNodeSubQType());
+				sqNode.setSubQueryConds(thisSubQConds);
+				sqNode.setLhsRhs(rhs);
+				return sqNode;
+			}
+			else if(rc.getExpression() instanceof ColumnReference){
+				//the result of subquery must be a single tuple
+				System.out.println("CCCCCCCCCCCCCCCCCCCCCCCc");
+				System.out.println("the result of subquery must be a single tuple");
+			}
+			
 			/*
 			if (sqn.getSubqueryType() == 1 || sqn.getSubqueryType() == 2) { // IN
 				// SubQuery
@@ -1051,6 +1116,49 @@ public class WhereClauseVectorJSQL {
 				addToSubQuery(n);
 				n = null;
 			}*/
+			return n;
+		}
+		else if (clause instanceof MinorThan){
+			BinaryExpression bne = (BinaryExpression)clause;
+			Node n = new Node();
+			n.setType(Node.getBroNodeType());
+			n.setOperator("<");
+			n.setLeft(getWhereClauseVector(bne.getLeftExpression(), exposedName, fle, isWhereClause, queryType,qParser));
+			n.setRight(getWhereClauseVector(bne.getRightExpression(), exposedName, fle, isWhereClause, queryType,qParser));
+
+			//Storing sub query details
+			n.setQueryType(queryType);
+			if(queryType == 1) n.setQueryIndex(qParser.getFromClauseSubqueries().size()-1);
+			if(queryType == 2) n.setQueryIndex(qParser.getWhereClauseSubqueries().size()-1);
+
+			/*
+			//FIXME: Mahesh when original subquery calls this then it is added to havingClause of sub query 
+			if(n.getRight().getQueryType() != 0 || n.getLeft().getQueryType() != 0){//Aliased column name is used in outer query
+				addToSubQuery(n);
+				n = null;
+			}*/
+			
+			return n;
+		} else if (clause instanceof MinorThanEquals){
+			BinaryExpression bne = (BinaryExpression)clause;
+			Node n = new Node();
+			n.setType(Node.getBroNodeType());
+			n.setOperator("<=");
+			n.setLeft(getWhereClauseVector(bne.getLeftExpression(), exposedName, fle, isWhereClause, queryType,qParser));
+			n.setRight(getWhereClauseVector(bne.getRightExpression(), exposedName, fle, isWhereClause, queryType,qParser));
+
+			//Storing sub query details
+			n.setQueryType(queryType);
+			if(queryType == 1) n.setQueryIndex(qParser.getFromClauseSubqueries().size()-1);
+			if(queryType == 2) n.setQueryIndex(qParser.getWhereClauseSubqueries().size()-1);
+
+			/*
+			//FIXME: Mahesh when original subquery calls this then it is added to havingClause of sub query 
+			if(n.getRight().getQueryType() != 0 || n.getLeft().getQueryType() != 0){//Aliased column name is used in outer query
+				addToSubQuery(n);
+				n = null;
+			}*/
+			
 			return n;
 		}
 		else {

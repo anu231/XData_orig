@@ -14,6 +14,8 @@ import java.util.Vector;
 
 import util.Configuration;
 import util.MyConnection;
+//import RelatedToPreprocessing;
+//import testDataGen.GenerateCVC1;
 
 
 
@@ -200,10 +202,15 @@ public class GenerateDataset_new {
 	//g.generateDatasetForQuery("A1Q11", "true", "SELECT DISTINCT instructor.ID,name,course_id FROM instructor LEFT OUTER JOIN TEACHES ON instructor.ID = teaches.ID", "");
 	//g.generateDatasetForQuery("A1Q12", "true", "SELECT student.id, student.name FROM student WHERE lower(student.name) like '%sr%'", "");FIXME getConstraintsinConjunct op error
 	//g.generateDatasetForQuery("A1Q13", "true", "SELECT id, name FROM student NATURAL LEFT OUTER JOIN (SELECT id, name, course_id FROM student NATURAL LEFT OUTER JOIN takes WHERE year = 2010 and semester = 'Spring') a", "");FIXME jsql parser error
-	g.generateDatasetForQuery("A1Q14", "true", "SELECT DISTINCT * FROM takes T WHERE (NOT EXISTS (SELECT id,course_id FROM takes S WHERE S.grade <> 'F' AND T.id=S.id AND T.course_id=S.course_id) and T.grade IS NOT NULL) or (T.grade <> 'F' AND T.grade IS NOT NULL)", "");
+	//g.generateDatasetForQuery("A1Q14", "true", "SELECT DISTINCT * FROM takes T WHERE (NOT EXISTS (SELECT id,course_id FROM takes S WHERE S.grade <> 'F' AND T.id=S.id AND T.course_id=S.course_id) and T.grade IS NOT NULL) or (T.grade <> 'F' AND T.grade IS NOT NULL)", "");
 		
 		//g.generateDatasetForQuery("A1Q20", "true", "SELECT c.dept_name, SUM(i.salary), MAX(i.salary) FROM course c INNER JOIN department d ON (c.dept_name = d.dept_name) INNER JOIN instructor i ON (d.dept_name = i.dept_name) GROUP BY c.dept_name HAVING SUM(i.salary)>100000 AND MAX(i.salary)<75000", "");
 		//g.generateDatasetForQuery("A1Q21", "true", "SELECT c.dept_name, SUM(i.salary), MAX(i.salary) FROM course c INNER JOIN department d ON (c.dept_name = d.dept_name) INNER JOIN instructor i ON (d.dept_name = i.dept_name) ", "");
+		//g.generateDatasetForQuery("A1Q22", "true", "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty, sum(l_extendedprice) as sum_base_price, sum(l_extendedprice * (1 - l_discount)) as sum_disc_price, sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge, avg(l_quantity) as avg_qty, avg(l_extendedprice) as avg_price, avg(l_discount) as avg_disc, count(*) as count_order from lineitem where l_shipdate <= 'date 1998-12-01 - interval 112 day' group by l_returnflag, l_linestatus order by l_returnflag, l_linestatus", "");
+		//g.generateDatasetForQuery("A1Q22", "true", "", "");
+		//select s_name, count(*) as numwait from supplier, lineitem l1, orders, nation where s_suppkey = l1.l_suppkey and o_orderkey = l1.l_orderkey and o_orderstatus = 'F' and l1.l_receiptdate > l1.l_commitdate and exists ( select * from lineitem l2 where l2.l_orderkey = l1.l_orderkey and l2.l_suppkey <> l1.l_suppkey ) and not exists ( select * from lineitem l3 where l3.l_orderkey = l1.l_orderkey and l3.l_suppkey <> l1.l_suppkey and l3.l_receiptdate > l3.l_commitdate ) and s_nationkey = n_nationkey and n_name = 'BRAZIL' group by s_name order by numwait desc, s_name
+		//g.generateDatasetForQuery("A1Q22", "true", "select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part, supplier, partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 9 and p_type like '%TIN' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' and ps_supplycost = ( select min(ps_supplycost) from partsupp, supplier, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' ) order by s_acctbal desc, n_name, s_name, p_partkey", "");
+		g.generateDatasetForQuery("A1Q22", "true", "select s_name, count(*) as numwait from supplier, lineitem l1, orders, nation where s_suppkey = l1.l_suppkey and o_orderkey = l1.l_orderkey and o_orderstatus = 'F' and l1.l_receiptdate > l1.l_commitdate and exists ( select * from lineitem l2 where l2.l_orderkey = l1.l_orderkey and l2.l_suppkey <> l1.l_suppkey ) and not exists ( select * from lineitem l3 where l3.l_orderkey = l1.l_orderkey and l3.l_suppkey <> l1.l_suppkey and l3.l_receiptdate > l3.l_commitdate ) and s_nationkey = n_nationkey and n_name = 'BRAZIL' group by s_name order by numwait desc, s_name", "");
 	}
 
 }

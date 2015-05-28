@@ -823,7 +823,9 @@ public class Util {
 					}
 				}
 			}
-
+			if (n.getRight()==null){
+				System.out.println("NULL");
+			}
 			if(n.getRight().getType().equals(Node.getStringFuncNodeType())){
 				Node temp=n.getRight();
 				n.setRight(temp.getLeft());
