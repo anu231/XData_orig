@@ -101,7 +101,10 @@ public class GetNode {
 	
 	public static Vector<Node> flattenNode(QueryParser qParser, Node node) {
 		Vector<Node> flattenedNodes = new Vector<Node>();
-
+		/*if (node==null){//FIXME ANURAG
+			return null;
+		}*/
+		System.out.println("FlattenNode:"+node.getType());
 		if(node.getType().equalsIgnoreCase(Node.getNotNodeType())){
 			Node left=node.getLeft();
 			if(left.getType().equalsIgnoreCase(Node.getInNodeType())){
