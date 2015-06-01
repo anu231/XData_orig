@@ -200,10 +200,10 @@ public class GenerateDataset_new {
 	//g.generateDatasetForQuery("A1Q11", "true", "SELECT DISTINCT instructor.ID,name,course_id FROM instructor LEFT OUTER JOIN TEACHES ON instructor.ID = teaches.ID", "");
 	//g.generateDatasetForQuery("A1Q12", "true", "SELECT student.id, student.name FROM student WHERE lower(student.name) like '%sr%'", "");FIXME getConstraintsinConjunct op error
 	//g.generateDatasetForQuery("A1Q13", "true", "SELECT id, name FROM student NATURAL LEFT OUTER JOIN (SELECT id, name, course_id FROM student NATURAL LEFT OUTER JOIN takes WHERE year = 2010 and semester = 'Spring') a", "");FIXME jsql parser error
-	g.generateDatasetForQuery("A1Q14", "true", "SELECT DISTINCT * FROM takes T WHERE (NOT EXISTS (SELECT id,course_id FROM takes S WHERE S.grade <> 'F' AND T.id=S.id AND T.course_id=S.course_id) and T.grade IS NOT NULL) or (T.grade <> 'F' AND T.grade IS NOT NULL)", "");
+	//g.generateDatasetForQuery("A1Q14", "true", "SELECT DISTINCT * FROM takes T WHERE (NOT EXISTS (SELECT id,course_id FROM takes S WHERE S.grade <> 'F' AND T.id=S.id AND T.course_id=S.course_id) and T.grade IS NOT NULL) or (T.grade <> 'F' AND T.grade IS NOT NULL)", "");
 		
 		//g.generateDatasetForQuery("A1Q20", "true", "SELECT c.dept_name, SUM(i.salary), MAX(i.salary) FROM course c INNER JOIN department d ON (c.dept_name = d.dept_name) INNER JOIN instructor i ON (d.dept_name = i.dept_name) GROUP BY c.dept_name HAVING SUM(i.salary)>100000 AND MAX(i.salary)<75000", "");
-		//g.generateDatasetForQuery("A1Q21", "true", "SELECT c.dept_name, SUM(i.salary), MAX(i.salary) FROM course c INNER JOIN department d ON (c.dept_name = d.dept_name) INNER JOIN instructor i ON (d.dept_name = i.dept_name) ", "");
+		g.generateDatasetForQuery("A1Q21", "true", "SELECT c.dept_name, SUM(i.salary), MAX(i.salary) FROM course c INNER JOIN department d ON (c.dept_name = d.dept_name) INNER JOIN instructor i ON (d.dept_name = i.dept_name) ", "");
 	}
 
 }
