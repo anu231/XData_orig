@@ -397,7 +397,7 @@ public class OperateOnJoinJSQL {
 
 			}
 			allConds.add(joinCond);
-		} else {
+		} else if (joinNode.getOnExpression()!=null) {
 			/*
 			 * For join conditions specified as "Join On (Expr)" where Expr is
 			 * an expression involving attributes from the two children of the

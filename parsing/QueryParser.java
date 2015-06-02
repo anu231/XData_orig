@@ -570,7 +570,7 @@ public class QueryParser {
 
 	public void parseQuery(String queryId, String queryString) throws Exception {
 		//parseQuery(queryId, queryString, true);
-		parseQueryJSQL(queryId, queryString, true);
+		parseQueryJSQL(queryId, queryString.toUpperCase(), true);
 	}
 
 	public void parseQueryJSQL(String queryId, String queryString, boolean debug)

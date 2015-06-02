@@ -113,8 +113,14 @@ public class ProcessResultSetNode {
 		FromItem prev = plainSelect.getFromItem();
 		if (plainSelect.getJoins()==null){
 			//only one item
-			FromListElement temp = OperateOnBaseTable.OperateOnBaseTableJSQL(prev,false, "", qParser.root,qParser, false, false);
-			t.add(temp);
+			if (prev instanceof net.sf.jsqlparser.schema.Table){
+				FromListElement temp = OperateOnBaseTable.OperateOnBaseTableJSQL(prev,false, "", qParser.root,qParser, false, false);
+				t.add(temp);
+			} else if (prev instanceof SubSelect){
+				FromListElement temp =	OperateOnSubQueryJSQL.OperateOnSubquery((SubSelect) prev,qParser.allConds, qParser.root,true,false,qParser);
+				t.add(temp);
+			}
+			
 		}
 		else {
 			for (Iterator joinsIt = plainSelect.getJoins().iterator(); joinsIt.hasNext();) {

@@ -228,10 +228,15 @@ public class WhereClauseVectorJSQL {
 			//ColumnReference cr = (ColumnReference)an.getOperand();
 			AggregateFunction af = new AggregateFunction();
 			//QueryTreeNode qtn = (QueryTreeNode)an.getOperand();
-			ExpressionList anList = an.getParameters();
-			List<Expression> expList = anList.getExpressions();//FIXME not only 1 expression but all expressions
-			Node n = getWhereClauseVector(expList.get(0),null, fle, isWhereClause, queryType, qParser);
-			af.setAggExp(n);
+			if (an.getParameters()!=null){
+				ExpressionList anList = an.getParameters();
+				List<Expression> expList = anList.getExpressions();//FIXME not only 1 expression but all expressions
+				Node n = getWhereClauseVector(expList.get(0),null, fle, isWhereClause, queryType, qParser);
+				af.setAggExp(n);
+			} else {
+				af.setAggExp(null);
+			}
+			
 			af.setFunc(aggName);
 			af.setDistinct(an.isDistinct());
 			af.setAggAliasName(exposedName);

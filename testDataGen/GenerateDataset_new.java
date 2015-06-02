@@ -1,7 +1,9 @@
 package testDataGen;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
@@ -180,7 +182,17 @@ public class GenerateDataset_new {
 		rs.close();
 		dbcon.close();
 	}
-	
+	private static String getQuery(){
+		String fileName = Configuration.homeDir+"/testQuery.txt";
+		try {
+			BufferedReader ord3 = new BufferedReader(new FileReader(fileName));
+			String qry = ord3.readLine();
+			return qry;
+		} catch (Exception e){
+			System.out.println(e.toString());
+			return null;
+		}
+	}
 
 	public static void main(String[] args) throws Exception{
 		//GenerateCVC1 gcv1 = new GenerateCVC1();
@@ -210,7 +222,10 @@ public class GenerateDataset_new {
 		//g.generateDatasetForQuery("A1Q22", "true", "", "");
 		//select s_name, count(*) as numwait from supplier, lineitem l1, orders, nation where s_suppkey = l1.l_suppkey and o_orderkey = l1.l_orderkey and o_orderstatus = 'F' and l1.l_receiptdate > l1.l_commitdate and exists ( select * from lineitem l2 where l2.l_orderkey = l1.l_orderkey and l2.l_suppkey <> l1.l_suppkey ) and not exists ( select * from lineitem l3 where l3.l_orderkey = l1.l_orderkey and l3.l_suppkey <> l1.l_suppkey and l3.l_receiptdate > l3.l_commitdate ) and s_nationkey = n_nationkey and n_name = 'BRAZIL' group by s_name order by numwait desc, s_name
 		//g.generateDatasetForQuery("A1Q22", "true", "select s_acctbal, s_name, n_name, p_partkey, p_mfgr, s_address, s_phone, s_comment from part, supplier, partsupp, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and p_size = 9 and p_type like '%TIN' and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' and ps_supplycost = ( select min(ps_supplycost) from partsupp, supplier, nation, region where p_partkey = ps_partkey and s_suppkey = ps_suppkey and s_nationkey = n_nationkey and n_regionkey = r_regionkey and r_name = 'MIDDLE EAST' ) order by s_acctbal desc, n_name, s_name, p_partkey", "");
-		g.generateDatasetForQuery("A1Q22", "true", "select s_name, count(*) as numwait from supplier, lineitem l1, orders, nation where s_suppkey = l1.l_suppkey and o_orderkey = l1.l_orderkey and o_orderstatus = 'F' and l1.l_receiptdate > l1.l_commitdate and exists ( select * from lineitem l2 where l2.l_orderkey = l1.l_orderkey and l2.l_suppkey <> l1.l_suppkey ) and not exists ( select * from lineitem l3 where l3.l_orderkey = l1.l_orderkey and l3.l_suppkey <> l1.l_suppkey and l3.l_receiptdate > l3.l_commitdate ) and s_nationkey = n_nationkey and n_name = 'BRAZIL' group by s_name order by numwait desc, s_name", "");
+		//g.generateDatasetForQuery("A1Q22", "true", "select s_name, count(*) as numwait from supplier, lineitem l1, orders, nation where s_suppkey = l1.l_suppkey and o_orderkey = l1.l_orderkey and o_orderstatus = 'F' and l1.l_receiptdate > l1.l_commitdate and exists ( select * from lineitem l2 where l2.l_orderkey = l1.l_orderkey and l2.l_suppkey <> l1.l_suppkey ) and not exists ( select * from lineitem l3 where l3.l_orderkey = l1.l_orderkey and l3.l_suppkey <> l1.l_suppkey and l3.l_receiptdate > l3.l_commitdate ) and s_nationkey = n_nationkey and n_name = 'BRAZIL' group by s_name order by numwait desc, s_name", "");
+		//
+		//g.generateDatasetForQuery("A1Q22", "true", "select c_count, count(*) as custdist from ( select c_custkey, count(o_orderkey) as c_count from customer left outer join orders on c_custkey = o_custkey and o_comment not like '%pending%accounts%' group by c_custkey ) as c_orders group by c_count order by custdist desc, c_count desc", "");
+		g.generateDatasetForQuery("A1Q22", "true", getQuery(), "");
 	}
 
 }
